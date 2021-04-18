@@ -56,7 +56,7 @@ class Block(nn.Module):
 class neuralnet(nn.Module):
     def __init__(self, input):
         super(neuralnet, self).__init__()
-        self.neck = 10
+        self.neck = 8
         self.width = 1024
         self.bn1 = nn.BatchNorm1d(input)
         self.fc1 = nn.Linear(input,self.width)
@@ -72,7 +72,7 @@ class neuralnet(nn.Module):
         return out
 
 def train(model, traindataset, testset, epoch, batch_size, weight_decay, device):
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9, nesterov=True, weight_decay=weight_decay)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9, nesterov=True, weight_decay=weight_decay)
     dataloader = torch.utils.data.DataLoader(dataset=traindataset, batch_size=batch_size, shuffle=True)
     testloader = torch.utils.data.DataLoader(dataset=testset, batch_size=batch_size, shuffle=True)
     train_acc = []
@@ -144,7 +144,7 @@ if __name__=="__main__":
                  'HOROZ':4, 'SIRA':5, 'DERMASON':6, }
     label = np.array([class_map[name] for name in data_raw.iloc[:,-1]])
     size = len(label)
-    test_idx = np.random.choice(size, size//10, replace=True)
+    test_idx = np.random.choice(size, size//5, replace=True)
     #print(test_idx)
     train_idx = np.delete(np.arange(size), test_idx, axis=None)
     #logistic_regression(input[train_idx], label[train_idx], input[test_idx], label[test_idx])
@@ -157,7 +157,7 @@ if __name__=="__main__":
     traindataset = simple_dataset(torch.tensor(input[train_idx]), torch.tensor(train_y))
     test_y = prepare_oh(label[test_idx],7)
     testdataset = simple_dataset(torch.tensor(input[test_idx]), torch.tensor(test_y))
-    trainerr, testerr = train(model, traindataset, testdataset, 100, 64, 1e-3, device)
+    trainerr, testerr = train(model, traindataset, testdataset, 100, 128, 1e-3, device)
     fig, ax = plt.subplots(1, 1)
     ax.plot(list(range(len(trainerr))), trainerr, label='train accuracy')
     ax.plot(list(range(len(testerr))), testerr, label='test accuracy')
